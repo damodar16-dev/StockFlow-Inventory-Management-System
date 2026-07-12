@@ -14,7 +14,30 @@ public class ProductController {
     public ProductController(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
+    @GetMapping("/sort/price")
+    public String sortPrice(Model model){
 
+        model.addAttribute("products",
+                productRepository.findAllByOrderByPriceAsc());
+
+        return "products";
+    }
+    @GetMapping("/sort/name")
+    public String sortName(Model model){
+
+        model.addAttribute("products",
+                productRepository.findAllByOrderByProductNameAsc());
+
+        return "products";
+    }
+    @GetMapping("/category")
+    public String filterCategory(@RequestParam String category, Model model) {
+
+        model.addAttribute("products",
+                productRepository.findByCategory(category));
+
+        return "products";
+    }
     @GetMapping("/products")
     public String viewProducts(Model model) {
 
@@ -64,5 +87,6 @@ public class ProductController {
         model.addAttribute("product", product);
 
         return "add-product";
+
     }
 }
