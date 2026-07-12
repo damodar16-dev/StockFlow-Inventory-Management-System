@@ -15,6 +15,15 @@ public class ProductController {
         this.productRepository = productRepository;
     }
 
+    @GetMapping("/search")
+    public String searchProduct(@RequestParam("keyword") String keyword, Model model) {
+
+        model.addAttribute("products",
+                productRepository.findByProductNameContainingIgnoreCase(keyword));
+
+        return "products";
+    }
+
     @GetMapping("/products")
     public String viewProducts(Model model) {
         model.addAttribute("products", productRepository.findAll());
@@ -44,5 +53,7 @@ public class ProductController {
         Product product = productRepository.findById(id).orElse(null);
         model.addAttribute("product", product);
         return "add-product";
+
+
     }
 }
