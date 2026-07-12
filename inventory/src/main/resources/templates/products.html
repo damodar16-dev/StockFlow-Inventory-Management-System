@@ -90,6 +90,18 @@
 
     </div>
 
+    <div th:if="${success}"
+         class="alert alert-success alert-dismissible fade show">
+
+        <i class="bi bi-check-circle-fill"></i>
+
+        <span th:text="${success}"></span>
+
+        <button class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
+    </div>
     <form th:action="@{/search}" method="get" class="mb-4">
 
         <div class="input-group">

@@ -5,6 +5,7 @@ import com.tyson.inventory.repository.ProductRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class ProductController {
@@ -64,21 +65,35 @@ public class ProductController {
     }
 
     @PostMapping("/save-product")
-    public String saveProduct(@ModelAttribute Product product) {
+    public String saveProduct(@ModelAttribute Product product,
+                              RedirectAttributes redirectAttributes) {
+
+        boolean isNew = (product.getId() == null);
 
         productRepository.save(product);
+
+        if (isNew) {
+            redirectAttributes.addFlashAttribute("success",
+                    "Product added successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("success",
+                    "Product updated successfully.");
+        }
 
         return "redirect:/products";
     }
 
     @GetMapping("/delete-product/{id}")
-    public String deleteProduct(@PathVariable Long id) {
+    public String deleteProduct(@PathVariable Long id,
+                                RedirectAttributes redirectAttributes) {
 
         productRepository.deleteById(id);
 
+        redirectAttributes.addFlashAttribute("success",
+                "Product deleted successfully.");
+
         return "redirect:/products";
     }
-
     @GetMapping("/edit-product/{id}")
     public String editProduct(@PathVariable Long id, Model model) {
 
