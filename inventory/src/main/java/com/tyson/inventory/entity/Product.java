@@ -17,6 +17,7 @@ import jakarta.persistence.*;
         private double price;
 
         private int quantity;
+        private String imageName;
 
 
         public Long getId() {
