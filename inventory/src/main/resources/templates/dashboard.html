@@ -313,6 +313,50 @@
 
     </table>
 
+    <div class="row mt-5">
+
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-header">
+
+                    Inventory Overview
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="inventoryChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-header">
+
+                    Stock Status
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="stockChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <div class="mt-4 text-center">
 
         <a href="/"
@@ -336,7 +380,65 @@
     </div>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
 
+    const inventoryChart = new Chart(
+        document.getElementById('inventoryChart'),
+        {
+            type:'bar',
+
+            data:{
+
+                labels:[
+                    'Products',
+                    'Categories',
+                    'Low Stock'
+                ],
+
+                datasets:[{
+
+                    label:'Inventory',
+
+                    data:[
+                        [[${totalProducts}]],
+                        [[${categories}]],
+                        [[${lowStock}]]
+                    ]
+
+                }]
+
+            }
+
+        });
+
+    const stockChart = new Chart(
+        document.getElementById('stockChart'),
+        {
+
+            type:'pie',
+
+            data:{
+
+                labels:[
+                    'Low Stock',
+                    'Available'
+                ],
+
+                datasets:[{
+
+                    data:[
+                        [[${lowStock}]],
+                        [[${totalProducts-lowStock}]]
+                    ]
+
+                }]
+
+            }
+
+        });
+
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
