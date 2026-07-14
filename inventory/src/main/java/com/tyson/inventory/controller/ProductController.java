@@ -2,6 +2,9 @@ package com.tyson.inventory.controller;
 
 import com.tyson.inventory.entity.Product;
 import com.tyson.inventory.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,51 +23,88 @@ public class ProductController {
         this.productRepository = productRepository;
     }
 
+    // ==========================
+    // Product List + Pagination
+    // ==========================
     @GetMapping("/products")
-    public String viewProducts(Model model) {
+    public String viewProducts(
+            @RequestParam(defaultValue = "0") int page,
+            Model model) {
 
-        model.addAttribute("products", productRepository.findAll());
+        Pageable pageable = PageRequest.of(page, 5);
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
 
         return "products";
     }
 
+    // ==========================
+    // Search
+    // ==========================
     @GetMapping("/search")
-    public String searchProduct(@RequestParam String keyword, Model model) {
+    public String searchProduct(
+            @RequestParam String keyword,
+            Model model) {
 
-        model.addAttribute("products",
-                productRepository.findByProductNameContainingIgnoreCase(keyword));
+        model.addAttribute(
+                "products",
+                productRepository.findByProductNameContainingIgnoreCase(keyword)
+        );
 
         return "products";
     }
 
+    // ==========================
+    // Category Filter
+    // ==========================
     @GetMapping("/category")
-    public String filterCategory(@RequestParam String category,
-                                 Model model) {
+    public String filterCategory(
+            @RequestParam String category,
+            Model model) {
 
-        model.addAttribute("products",
-                productRepository.findByCategory(category));
+        model.addAttribute(
+                "products",
+                productRepository.findByCategoryIgnoreCase(category)
+        );
 
         return "products";
     }
 
+    // ==========================
+    // Sort by Name
+    // ==========================
     @GetMapping("/sort/name")
-    public String sortName(Model model) {
+    public String sortByName(Model model) {
 
-        model.addAttribute("products",
-                productRepository.findAllByOrderByProductNameAsc());
+        model.addAttribute(
+                "products",
+                productRepository.findAllByOrderByProductNameAsc()
+        );
 
         return "products";
     }
 
+    // ==========================
+    // Sort by Price
+    // ==========================
     @GetMapping("/sort/price")
-    public String sortPrice(Model model) {
+    public String sortByPrice(Model model) {
 
-        model.addAttribute("products",
-                productRepository.findAllByOrderByPriceAsc());
+        model.addAttribute(
+                "products",
+                productRepository.findAllByOrderByPriceAsc()
+        );
 
         return "products";
     }
 
+    // ==========================
+    // Add Product Page
+    // ==========================
     @GetMapping("/add-product")
     public String addProductPage(Model model) {
 
@@ -72,20 +112,27 @@ public class ProductController {
 
         return "add-product";
     }
-
+    // ==========================
+    // Save Product
+    // ==========================
     @PostMapping("/save-product")
     public String saveProduct(
-
             @ModelAttribute Product product,
-
             @RequestParam("image") MultipartFile file,
-
-            RedirectAttributes redirectAttributes)
-
-            throws IOException {
+            RedirectAttributes redirectAttributes) throws IOException {
 
         boolean isNew = (product.getId() == null);
 
+        // Preserve old image while editing
+        if (!isNew) {
+            Product oldProduct = productRepository.findById(product.getId()).orElse(null);
+
+            if (oldProduct != null && file.isEmpty()) {
+                product.setImageName(oldProduct.getImageName());
+            }
+        }
+
+        // Upload new image
         if (!file.isEmpty()) {
 
             String uploadDir = "uploads/";
@@ -96,7 +143,7 @@ public class ProductController {
                 directory.mkdirs();
             }
 
-            String fileName = file.getOriginalFilename();
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 
             file.transferTo(new File(uploadDir + fileName));
 
@@ -106,26 +153,27 @@ public class ProductController {
         productRepository.save(product);
 
         if (isNew) {
-
             redirectAttributes.addFlashAttribute(
                     "success",
                     "Product added successfully."
             );
-
         } else {
-
             redirectAttributes.addFlashAttribute(
                     "success",
                     "Product updated successfully."
             );
-
         }
 
         return "redirect:/products";
     }
 
+    // ==========================
+    // Edit Product
+    // ==========================
     @GetMapping("/edit-product/{id}")
-    public String editProduct(@PathVariable Long id, Model model) {
+    public String editProduct(
+            @PathVariable Long id,
+            Model model) {
 
         Product product = productRepository.findById(id).orElse(null);
 
@@ -138,9 +186,13 @@ public class ProductController {
         return "add-product";
     }
 
+    // ==========================
+    // Delete Product
+    // ==========================
     @GetMapping("/delete-product/{id}")
-    public String deleteProduct(@PathVariable Long id,
-                                RedirectAttributes redirectAttributes) {
+    public String deleteProduct(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes) {
 
         productRepository.deleteById(id);
 
