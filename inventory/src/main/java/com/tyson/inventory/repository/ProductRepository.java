@@ -1,6 +1,8 @@
 package com.tyson.inventory.repository;
 
 import com.tyson.inventory.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -8,22 +10,35 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    // ==========================
     // Search
+    // ==========================
     List<Product> findByProductNameContainingIgnoreCase(String keyword);
 
-    // Filter by Category
-    List<Product> findByCategory(String category);
+    // ==========================
+    // Category Filter
+    // Ignore Case
+    // ==========================
+    List<Product> findByCategoryIgnoreCase(String category);
 
-    // Sort by Price
-    List<Product> findAllByOrderByPriceAsc();
-
-    // Sort by Product Name
+    // ==========================
+    // Sorting
+    // ==========================
     List<Product> findAllByOrderByProductNameAsc();
 
+    List<Product> findAllByOrderByPriceAsc();
+
+    // ==========================
+    // Pagination
+    // ==========================
+    Page<Product> findAll(Pageable pageable);
+
+    // ==========================
     // Dashboard
+    // ==========================
     long countByQuantityLessThan(int quantity);
 
-    @Query("SELECT SUM(p.price * p.quantity) FROM Product p")
+    @Query("SELECT COALESCE(SUM(p.price * p.quantity),0) FROM Product p")
     Double getTotalInventoryValue();
 
     @Query("SELECT COUNT(DISTINCT p.category) FROM Product p")
