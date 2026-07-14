@@ -17,7 +17,8 @@ public class DashboardController {
     @GetMapping("/")
     public String dashboard(Model model) {
 
-        model.addAttribute("totalProducts", productRepository.count());
+        model.addAttribute("totalProducts",
+                productRepository.count());
 
         model.addAttribute("lowStock",
                 productRepository.countByQuantityLessThan(10));
@@ -25,7 +26,8 @@ public class DashboardController {
         model.addAttribute("categories",
                 productRepository.countCategories());
 
-        Double totalValue = productRepository.getTotalInventoryValue();
+        Double totalValue =
+                productRepository.getTotalInventoryValue();
 
         model.addAttribute("inventoryValue",
                 totalValue == null ? 0 : totalValue);
