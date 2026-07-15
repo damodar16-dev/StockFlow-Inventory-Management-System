@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 
     <meta charset="UTF-8">
@@ -34,6 +34,7 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    style="background:linear-gradient(90deg,#2563EB,#1D4ED8);">
 
     <div class="container">
 
@@ -63,16 +64,23 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="/products"
-                       class="nav-link active">
+                    <a href="/products" class="nav-link">
                         Products
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="/add-product"
-                       class="nav-link">
+                <li class="nav-item"
+                    sec:authorize="hasRole('ADMIN')">
+
+                    <a href="/add-product" class="nav-link">
                         Add Product
+                    </a>
+
+                </li>
+                <li class="nav-item">
+                    <a href="/categories"
+                       class="nav-link">
+                        Categories
                     </a>
                 </li>
 
@@ -84,29 +92,36 @@
 
 </nav>
 
-<div class="container mt-5">
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="bi bi-box-seam"></i>
+        Product List
+    </h2>
 
-        <h2>
 
-            <i class="bi bi-box-seam"></i>
+    <div>
 
-            Product List
+        <a href="/export/pdf"
+           class="btn btn-danger me-2">
 
-        </h2>
+            <i class="bi bi-file-earmark-pdf"></i>
+            Export PDF
+
+        </a>
+
 
         <a href="/add-product"
            class="btn btn-success">
 
             <i class="bi bi-plus-circle"></i>
-
             Add Product
 
         </a>
 
     </div>
 
+</div>
     <!-- Success Message -->
 
     <div class="alert alert-success alert-dismissible fade show"
@@ -199,9 +214,20 @@
 
     </div>
 
-    <table class="table table-bordered table-hover shadow">
+<div class="card shadow border-0 rounded-4">
 
-        <thead class="table-dark">
+    <div class="card-header bg-primary text-white fw-bold">
+
+        <i class="bi bi-box-seam"></i>
+        Product Inventory
+
+    </div>
+
+    <div class="card-body p-0">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-primary">
 
         <tr>
 
@@ -239,14 +265,18 @@
             </td>
 
             <!-- Product Name -->
-            <td th:text="${product.productName}"></td>
+            <td class="fw-semibold"
+                th:text="${product.productName}">
+            </td>
 
             <!-- Category -->
             <td th:text="${product.category}"></td>
 
             <!-- Price -->
-            <td>
+            <td class="fw-bold text-success">
+
                 ₹ <span th:text="${product.price}"></span>
+
             </td>
 
             <!-- Quantity -->
@@ -270,18 +300,19 @@
             </td>
 
             <!-- Action -->
-            <td>
+            <td sec:authorize="hasRole('ADMIN')">
 
                 <a th:href="@{/edit-product/{id}(id=${product.id})}"
-                   class="btn btn-warning btn-sm">
+                   class="btn btn-outline-warning btn-sm">
 
                     <i class="bi bi-pencil-square"></i>
                     Edit
 
                 </a>
 
+
                 <a th:href="@{/delete-product/{id}(id=${product.id})}"
-                   class="btn btn-danger btn-sm"
+                   class="btn btn-outline-danger btn-sm">
                    onclick="return confirm('Delete this product?')">
 
                     <i class="bi bi-trash"></i>
@@ -290,18 +321,20 @@
                 </a>
 
             </td>
-
         </tr>
 
         </tbody>
 
     </table>
+    </div>
+
+</div>
     <!-- Pagination -->
 
     <nav th:if="${totalPages != null and totalPages > 1}"
          class="mt-4">
 
-        <ul class="pagination justify-content-center">
+        <ul class="pagination pagination-lg justify-content-center">
 
             <!-- Previous -->
             <li class="page-item"
@@ -342,7 +375,11 @@
     </nav>
 
 </div>
-
+<footer class="text-center text-muted py-4 mt-5">
+    <small>
+        © 2026 <strong>StockSphere</strong> | Developed by <strong>Tyson</strong>
+    </small>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 

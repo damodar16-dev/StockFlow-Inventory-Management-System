@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 
     <meta charset="UTF-8">
@@ -18,6 +19,7 @@
 <body class="bg-light">
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    style="background:linear-gradient(90deg,#2563EB,#1D4ED8);">
 
     <div class="container">
 
@@ -54,10 +56,19 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link active"
-                       href="/add-product">
+                <li class="nav-item"
+                    sec:authorize="hasRole('ADMIN')">
+
+                    <a href="/add-product"
+                       class="nav-link">
                         Add Product
+                    </a>
+
+                </li>
+                <li class="nav-item">
+                    <a href="/categories"
+                       class="nav-link">
+                        Categories
                     </a>
                 </li>
 
@@ -112,6 +123,10 @@
                                    required>
 
                         </div>
+                        <div class="text-danger"
+                             th:if="${#fields.hasErrors('productName')}"
+                             th:errors="*{productName}">
+                        </div>
 
                         <div class="mb-3">
 
@@ -142,6 +157,10 @@
                             </select>
 
                         </div>
+                        <div class="text-danger"
+                             th:if="${#fields.hasErrors('category')}"
+                             th:errors="*{category}">
+                        </div>
 
                         <div class="row">
 
@@ -160,6 +179,10 @@
                                            required>
 
                                 </div>
+                                <div class="text-danger"
+                                     th:if="${#fields.hasErrors('price')}"
+                                     th:errors="*{price}">
+                                </div>
 
                             </div>
 
@@ -176,6 +199,10 @@
                                            th:field="*{quantity}"
                                            required>
 
+                                </div>
+                                <div class="text-danger"
+                                     th:if="${#fields.hasErrors('quantity')}"
+                                     th:errors="*{quantity}">
                                 </div>
 
                             </div>
@@ -255,7 +282,12 @@
     </div>
 
 </div>
-
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <small>
+        © 2026 <strong>StockSphere</strong> | Inventory Management System |
+        Developed by <strong>Tyson</strong>
+    </small>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
