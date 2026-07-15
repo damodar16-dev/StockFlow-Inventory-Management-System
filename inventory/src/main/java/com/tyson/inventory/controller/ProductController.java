@@ -1,26 +1,43 @@
 package com.tyson.inventory.controller;
 
-import com.tyson.inventory.entity.Product;
-import com.tyson.inventory.repository.ProductRepository;
+
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import com.tyson.inventory.service.PdfService;
+import com.tyson.inventory.entity.Product;
+import com.tyson.inventory.repository.ProductRepository;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 import java.io.File;
 import java.io.IOException;
+
 
 @Controller
 public class ProductController {
 
     private final ProductRepository productRepository;
+    private final PdfService pdfService;
 
-    public ProductController(ProductRepository productRepository) {
+
+    public ProductController(ProductRepository productRepository,
+                             PdfService pdfService) {
+
         this.productRepository = productRepository;
+        this.pdfService = pdfService;
+
     }
 
     // ==========================
@@ -73,6 +90,21 @@ public class ProductController {
 
         return "products";
     }
+@GetMapping("/export/pdf")
+public ResponseEntity<byte[]> exportPdf() {
+
+    List<Product> products = productRepository.findAll();
+
+    byte[] pdf = pdfService.generateProductPdf(products);
+
+    return ResponseEntity.ok()
+            .header(
+                    HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=products.pdf"
+            )
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdf);
+}
 
     // ==========================
     // Sort by Name
@@ -117,9 +149,16 @@ public class ProductController {
     // ==========================
     @PostMapping("/save-product")
     public String saveProduct(
-            @ModelAttribute Product product,
+            @Valid @ModelAttribute Product product,
+            BindingResult result,
             @RequestParam("image") MultipartFile file,
-            RedirectAttributes redirectAttributes) throws IOException {
+            RedirectAttributes redirectAttributes,
+            Model model) throws IOException {
+
+        if (result.hasErrors()) {
+            model.addAttribute("product", product);
+            return "add-product";
+        }
 
         boolean isNew = (product.getId() == null);
 
@@ -135,7 +174,7 @@ public class ProductController {
         // Upload new image
         if (!file.isEmpty()) {
 
-            String uploadDir = "uploads/";
+            String uploadDir = System.getProperty("user.dir") + File.separator + "uploads";
 
             File directory = new File(uploadDir);
 
@@ -145,7 +184,7 @@ public class ProductController {
 
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 
-            file.transferTo(new File(uploadDir + fileName));
+            file.transferTo(new File(directory, fileName));
 
             product.setImageName(fileName);
         }
