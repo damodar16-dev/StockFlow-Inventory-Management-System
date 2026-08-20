@@ -1,10 +1,253 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+
+    <meta charset="UTF-8">
+    <title>About | StockSphere</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f4f7fc;
+            font-family:'Poppins',sans-serif;
+        }
+
+        .hero{
+            background:linear-gradient(135deg,#2563EB,#1D4ED8);
+            color:white;
+            padding:50px;
+            border-radius:20px;
+            margin:30px 0;
+            text-align:center;
+            box-shadow:0 10px 25px rgba(37,99,235,.25);
+        }
+
+        .card{
+            border:none;
+            border-radius:18px;
+            box-shadow:0 8px 20px rgba(0,0,0,.08);
+            transition:.3s;
+        }
+
+        .card:hover{
+            transform:translateY(-5px);
+        }
+
+        .section-title{
+            color:#2563EB;
+            font-weight:700;
+            margin-bottom:20px;
+        }
+
+        .feature-icon{
+            font-size:45px;
+            color:#2563EB;
+            margin-bottom:15px;
+        }
+
+    </style>
+
 </head>
+
 <body>
-$END$
+
+<nav class="navbar navbar-expand-lg navbar-dark shadow"
+     style="background:linear-gradient(90deg,#2563EB,#1D4ED8);">
+
+    <div class="container">
+
+        <a class="navbar-brand fw-bold fs-4" href="/">
+            📦 StockSphere
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menu">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+        <div class="collapse navbar-collapse" id="menu">
+
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="bi bi-speedometer2"></i>
+                        Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/products" class="nav-link">
+                        <i class="bi bi-box-seam"></i>
+                        Products
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/categories" class="nav-link">
+                        <i class="bi bi-tags"></i>
+                        Categories
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/about" class="nav-link active">
+                        <i class="bi bi-info-circle"></i>
+                        About
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</nav>
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1 class="fw-bold">📦 StockSphere</h1>
+
+        <h4 class="mt-3">Inventory Management System</h4>
+
+        <p class="mt-3 mb-0">
+
+            StockSphere is a modern Inventory Management System developed
+            using Spring Boot, Spring Security, Thymeleaf,
+            Bootstrap and MySQL.
+
+        </p>
+
+    </div>
+
+    <h3 class="section-title">🚀 Features</h3>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+
+            <div class="card p-4 text-center h-100">
+
+                <i class="bi bi-box-seam feature-icon"></i>
+
+                <h5>Product Management</h5>
+
+                <p class="text-muted">
+                    Add, edit, delete and search products easily.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card p-4 text-center h-100">
+
+                <i class="bi bi-tags feature-icon"></i>
+
+                <h5>Category Management</h5>
+
+                <p class="text-muted">
+                    Organize products into different categories.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4">
+
+            <div class="card p-4 text-center h-100">
+
+                <i class="bi bi-file-earmark-pdf feature-icon"></i>
+
+                <h5>PDF Export</h5>
+
+                <p class="text-muted">
+                    Generate inventory reports in PDF format.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="mt-5">
+
+        <h3 class="section-title">🛠 Technology Stack</h3>
+
+        <div class="card p-4">
+
+            <div class="row text-center">
+
+                <div class="col-md-2"><strong>Java</strong></div>
+                <div class="col-md-2"><strong>Spring Boot</strong></div>
+                <div class="col-md-2"><strong>Security</strong></div>
+                <div class="col-md-2"><strong>Thymeleaf</strong></div>
+                <div class="col-md-2"><strong>Bootstrap</strong></div>
+                <div class="col-md-2"><strong>MySQL</strong></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="mt-5">
+
+        <div class="card p-5 text-center">
+
+            <h3>👨‍💻 Developer</h3>
+
+            <h4 class="fw-bold mt-3">Tyson</h4>
+
+            <p class="text-muted">
+                B.Sc. Information Technology Student
+            </p>
+
+            <hr>
+
+            <p><strong>Version:</strong> 1.0</p>
+
+            <p><strong>Year:</strong> 2026</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer class="text-center text-muted py-4 mt-5">
+
+    <small>
+
+        © 2026 <strong>StockSphere</strong> |
+        Inventory Management System |
+        Developed by <strong>Tyson</strong>
+
+    </small>
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

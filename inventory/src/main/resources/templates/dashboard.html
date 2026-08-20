@@ -78,6 +78,12 @@
                         Categories
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/about" class="nav-link">
+                        <i class="bi bi-info-circle"></i>
+                        About
+                    </a>
+                </li>
 
 
                 <li class="nav-item ms-3">
@@ -138,7 +144,7 @@
             <div class="card text-white bg-danger shadow">
                 <div class="card-body text-center">
                     <h5>Inventory Value</h5>
-                    <h4>₹ <span th:text="${inventoryValue}">0</span></h4>
+                    <h4>₹ <span th:text="${#numbers.formatDecimal(inventoryValue, 1, 'COMMA', 0, 'POINT')}"></span></h4>
                 </div>
             </div>
         </div>

@@ -1,79 +1,241 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+
     <meta charset="UTF-8">
+
     <title>Categories | StockSphere</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <style>
+
+        body{
+            background:#f4f7fc;
+            font-family:'Poppins',sans-serif;
+        }
+
+        .page-header{
+            background:linear-gradient(135deg,#2563EB,#1D4ED8);
+            color:white;
+            border-radius:20px;
+            padding:30px;
+            margin-bottom:30px;
+            box-shadow:0 10px 25px rgba(37,99,235,.25);
+        }
+
+        .card{
+            border:none;
+            border-radius:18px;
+            box-shadow:0 10px 25px rgba(0,0,0,.08);
+        }
+
+        .table tbody tr:hover{
+            background:#eef4ff;
+            transition:.3s;
+        }
+
+        .btn{
+            border-radius:10px;
+        }
+
+    </style>
+
 </head>
 
-<body class="bg-light">
+<body>
 
+<nav class="navbar navbar-expand-lg navbar-dark shadow"
+     style="background:linear-gradient(90deg,#2563EB,#1D4ED8);">
+
+    <div class="container">
+
+        <a class="navbar-brand fw-bold fs-4" href="/">
+            📦 StockSphere
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menu">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+        <div class="collapse navbar-collapse" id="menu">
+
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <a href="/" class="nav-link">
+                        <i class="bi bi-speedometer2"></i>
+                        Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/products" class="nav-link">
+                        <i class="bi bi-box-seam"></i>
+                        Products
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/categories" class="nav-link active">
+                        <i class="bi bi-tags"></i>
+                        Categories
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/about" class="nav-link">
+                        <i class="bi bi-info-circle"></i>
+                        About
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</nav>
 
 <div class="container mt-4">
 
-    <div class="d-flex justify-content-between mb-3">
+    <div class="page-header d-flex justify-content-between align-items-center">
 
-        <h2>Categories</h2>
+        <div>
 
-        <a href="/add-category" class="btn btn-success">
+            <h2 class="fw-bold">
+                📂 Categories
+            </h2>
+
+            <p class="mb-0">
+                Manage your product categories
+            </p>
+
+        </div>
+
+        <a href="/add-category"
+           class="btn btn-light btn-lg">
+
+            <i class="bi bi-plus-circle"></i>
+
             Add Category
+
         </a>
 
     </div>
 
-    <div class="alert alert-success"
-         th:if="${success}"
-         th:text="${success}">
+    <div class="alert alert-success alert-dismissible fade show"
+         th:if="${success}">
+
+        <span th:text="${success}"></span>
+
+        <button class="btn-close"
+                data-bs-dismiss="alert">
+        </button>
+
     </div>
 
-    <table class="table table-bordered table-hover">
+    <div class="card">
 
-        <thead class="table-dark">
+        <div class="card-header bg-primary text-white fw-bold">
 
-        <tr>
+            <i class="bi bi-tags"></i>
 
-            <th>ID</th>
-            <th>Category</th>
-            <th>Description</th>
-            <th>Action</th>
+            Category List
 
-        </tr>
+        </div>
 
-        </thead>
+        <div class="card-body p-0">
 
-        <tbody>
+            <table class="table table-hover align-middle mb-0">
 
-        <tr th:each="category : ${categories}">
+                <thead class="table-primary">
 
-            <td th:text="${category.id}"></td>
+                <tr>
 
-            <td th:text="${category.categoryName}"></td>
+                    <th>ID</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th class="text-center">Action</th>
 
-            <td th:text="${category.description}"></td>
+                </tr>
 
-            <td>
+                </thead>
 
-                <a th:href="@{/edit-category/{id}(id=${category.id})}"
-                   class="btn btn-warning btn-sm">
-                    Edit
-                </a>
+                <tbody>
 
-                <a th:href="@{/delete-category/{id}(id=${category.id})}"
-                   class="btn btn-danger btn-sm"
-                   onclick="return confirm('Delete this category?')">
-                    Delete
-                </a>
+                <tr th:each="category : ${categories}">
 
-            </td>
+                    <td th:text="${category.id}"></td>
 
-        </tr>
+                    <td class="fw-semibold"
+                        th:text="${category.categoryName}">
+                    </td>
 
-        </tbody>
+                    <td th:text="${category.description}"></td>
 
-    </table>
+                    <td class="text-center">
+
+                        <a th:href="@{/edit-category/{id}(id=${category.id})}"
+                           class="btn btn-outline-warning btn-sm me-2">
+
+                            <i class="bi bi-pencil-square"></i>
+
+                            Edit
+
+                        </a>
+
+                        <a th:href="@{/delete-category/{id}(id=${category.id})}"
+                           class="btn btn-outline-danger btn-sm"
+                           onclick="return confirm('Delete this category?')">
+
+                            <i class="bi bi-trash"></i>
+
+                            Delete
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
+<footer class="text-center text-muted py-4 mt-5">
+
+    <small>
+
+        © 2026 <strong>StockSphere</strong> |
+        Inventory Management System |
+        Developed by <strong>Tyson</strong>
+
+    </small>
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+</html>
 </html>
