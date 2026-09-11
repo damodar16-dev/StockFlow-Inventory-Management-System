@@ -251,11 +251,11 @@
             <!-- Image -->
             <td>
 
-                <img th:if="${product.imageName != null}"
-                     th:src="@{'/uploads/' + ${product.imageName}}"
-                     width="70"
-                     height="70"
-                     class="rounded shadow">
+                <img th:src="${product.imageName}"
+                     alt="Product Image"
+                     width="100"
+                     height="100"
+                     style="object-fit: cover;">
 
                 <span th:if="${product.imageName == null}">
                     No Image

@@ -1,271 +1,225 @@
 package com.tyson.inventory.controller;
 
-import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-
-import com.tyson.inventory.service.PdfService;
 import com.tyson.inventory.entity.Product;
 import com.tyson.inventory.repository.ProductRepository;
 
-import org.springframework.web.bind.annotation.PathVariable;
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 import java.io.IOException;
 import java.util.Map;
 
 @Controller
 public class ProductController {
 
-    private final ProductRepository productRepository;
-    private final PdfService pdfService;
-    private final Cloudinary cloudinary;
+    @Autowired
+    private ProductRepository productRepository;
 
-    public ProductController(ProductRepository productRepository,
-                             PdfService pdfService,
-                             Cloudinary cloudinary) {
+    @Autowired
+    private Cloudinary cloudinary;
 
-        this.productRepository = productRepository;
-        this.pdfService = pdfService;
-        this.cloudinary = cloudinary;
-    }
 
-    // ==========================
-    // Product List + Pagination
-    // ==========================
+    // =========================
+    // SHOW ALL PRODUCTS
+    // =========================
+
     @GetMapping("/products")
-    public String viewProducts(
-            @RequestParam(defaultValue = "0") int page,
-            Model model) {
-
-        Pageable pageable = PageRequest.of(page, 5);
-
-        Page<Product> productPage = productRepository.findAll(pageable);
-
-        model.addAttribute("products", productPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-
-        return "products";
-    }
-
-    // ==========================
-    // Search
-    // ==========================
-    @GetMapping("/search")
-    public String searchProduct(
-            @RequestParam String keyword,
-            Model model) {
+    public String showProducts(Model model) {
 
         model.addAttribute(
                 "products",
-                productRepository.findByProductNameContainingIgnoreCase(keyword)
+                productRepository.findAll()
         );
 
         return "products";
     }
 
-    // ==========================
-    // Category Filter
-    // ==========================
-    @GetMapping("/category")
-    public String filterCategory(
-            @RequestParam String category,
-            Model model) {
 
-        model.addAttribute(
-                "products",
-                productRepository.findByCategoryIgnoreCase(category)
-        );
+    // =========================
+    // SHOW ADD PRODUCT PAGE
+    // =========================
 
-        return "products";
-    }
-
-    // ==========================
-    // Export PDF
-    // ==========================
-    @GetMapping("/export/pdf")
-    public ResponseEntity<byte[]> exportPdf() {
-
-        List<Product> products = productRepository.findAll();
-
-        byte[] pdf = pdfService.generateProductPdf(products);
-
-        return ResponseEntity.ok()
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=products.pdf"
-                )
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
-    }
-
-    // ==========================
-    // Sort by Name
-    // ==========================
-    @GetMapping("/sort/name")
-    public String sortByName(Model model) {
-
-        model.addAttribute(
-                "products",
-                productRepository.findAllByOrderByProductNameAsc()
-        );
-
-        return "products";
-    }
-
-    // ==========================
-    // Sort by Price
-    // ==========================
-    @GetMapping("/sort/price")
-    public String sortByPrice(Model model) {
-
-        model.addAttribute(
-                "products",
-                productRepository.findAllByOrderByPriceAsc()
-        );
-
-        return "products";
-    }
-
-    // ==========================
-    // Add Product Page
-    // ==========================
     @GetMapping("/add-product")
-    public String addProductPage(Model model) {
+    public String showAddProductForm(Model model) {
 
         model.addAttribute("product", new Product());
 
         return "add-product";
     }
 
-    // ==========================
-    // Save Product
-    // ==========================
+
+    // =========================
+    // ADD / SAVE PRODUCT
+    // =========================
+
     @PostMapping("/save-product")
     public String saveProduct(
-            @Valid @ModelAttribute Product product,
-            BindingResult result,
-            @RequestParam("image") MultipartFile file,
-            RedirectAttributes redirectAttributes,
+            @Valid @ModelAttribute("product") Product product,
+            BindingResult bindingResult,
+            @RequestParam(value = "image", required = false)
+            MultipartFile image,
             Model model) throws IOException {
 
-        // Validate product fields
-        if (result.hasErrors()) {
-            model.addAttribute("product", product);
+        // Validation errors
+        if (bindingResult.hasErrors()) {
             return "add-product";
         }
 
-        boolean isNew = (product.getId() == null);
 
-        // ==========================================
-        // Preserve old image while editing
-        // ==========================================
-        if (!isNew) {
+        // =========================
+        // CLOUDINARY IMAGE UPLOAD
+        // =========================
 
-            Product oldProduct = productRepository
-                    .findById(product.getId())
-                    .orElse(null);
-
-            if (oldProduct != null && file.isEmpty()) {
-                product.setImageName(oldProduct.getImageName());
-            }
-        }
-
-        // ==========================================
-        // Upload new image to Cloudinary
-        // ==========================================
-        if (!file.isEmpty()) {
+        if (image != null && !image.isEmpty()) {
 
             Map uploadResult = cloudinary.uploader().upload(
-                    file.getBytes(),
+                    image.getBytes(),
                     ObjectUtils.asMap(
                             "folder", "stocksphere/products",
                             "resource_type", "image"
                     )
             );
 
-            // Get permanent Cloudinary URL
-            String imageUrl = (String) uploadResult.get("secure_url");
+            // Get Cloudinary secure URL
+            String imageUrl =
+                    (String) uploadResult.get("secure_url");
 
+            // Save Cloudinary URL in database
             product.setImageName(imageUrl);
         }
 
-        // ==========================================
-        // Save product to Aiven MySQL
-        // ==========================================
+
+        // Save product in MySQL
         productRepository.save(product);
-
-        // ==========================================
-        // Success message
-        // ==========================================
-        if (isNew) {
-
-            redirectAttributes.addFlashAttribute(
-                    "success",
-                    "Product added successfully."
-            );
-
-        } else {
-
-            redirectAttributes.addFlashAttribute(
-                    "success",
-                    "Product updated successfully."
-            );
-        }
 
         return "redirect:/products";
     }
 
-    // ==========================
-    // Edit Product
-    // ==========================
-    @GetMapping("/edit-product/{id}")
+
+    // =========================
+    // SHOW EDIT PRODUCT PAGE
+    // =========================
+
+    @GetMapping("/products/edit/{id}")
     public String editProduct(
             @PathVariable Long id,
             Model model) {
 
-        Product product = productRepository
-                .findById(id)
-                .orElse(null);
-
-        if (product == null) {
-            return "redirect:/products";
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Invalid product ID: " + id
+                        )
+                );
 
         model.addAttribute("product", product);
 
-        return "add-product";
+        return "edit-product";
     }
 
-    // ==========================
-    // Delete Product
-    // ==========================
-    @GetMapping("/delete-product/{id}")
-    public String deleteProduct(
+
+    // =========================
+    // UPDATE PRODUCT
+    // =========================
+
+    @PostMapping("/products/update/{id}")
+    public String updateProduct(
             @PathVariable Long id,
-            RedirectAttributes redirectAttributes) {
+            @Valid @ModelAttribute("product") Product product,
+            BindingResult bindingResult,
+            @RequestParam(value = "image", required = false)
+            MultipartFile image,
+            Model model) throws IOException {
+
+        if (bindingResult.hasErrors()) {
+            return "edit-product";
+        }
+
+
+        // Find existing product
+        Product existingProduct =
+                productRepository.findById(id)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Invalid product ID: " + id
+                                )
+                        );
+
+
+        // =========================
+        // UPDATE PRODUCT DETAILS
+        // =========================
+
+        existingProduct.setProductName(
+                product.getProductName()
+        );
+
+        existingProduct.setCategory(
+                product.getCategory()
+        );
+
+        existingProduct.setPrice(
+                product.getPrice()
+        );
+
+        existingProduct.setQuantity(
+                product.getQuantity()
+        );
+
+
+        // =========================
+        // UPLOAD NEW IMAGE
+        // =========================
+
+        if (image != null && !image.isEmpty()) {
+
+            Map uploadResult =
+                    cloudinary.uploader().upload(
+                            image.getBytes(),
+                            ObjectUtils.asMap(
+                                    "folder",
+                                    "stocksphere/products",
+
+                                    "resource_type",
+                                    "image"
+                            )
+                    );
+
+            String imageUrl =
+                    (String) uploadResult.get("secure_url");
+
+            // Replace old image URL
+            existingProduct.setImageName(imageUrl);
+        }
+
+
+        // If no new image selected,
+        // existing Cloudinary URL remains unchanged.
+
+
+        productRepository.save(existingProduct);
+
+        return "redirect:/products";
+    }
+
+
+    // =========================
+    // DELETE PRODUCT
+    // =========================
+
+    @GetMapping("/products/delete/{id}")
+    public String deleteProduct(
+            @PathVariable Long id) {
 
         productRepository.deleteById(id);
-
-        redirectAttributes.addFlashAttribute(
-                "success",
-                "Product deleted successfully."
-        );
 
         return "redirect:/products";
     }
