@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Products | StockSphere</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -14,17 +17,20 @@
 
     <style>
 
-        body{
-            background:#f8f9fa;
+        body {
+            background: #f8f9fa;
         }
 
-        .table tbody tr:hover{
-            background:#f1f5ff;
-            transition:.3s;
+        .table tbody tr:hover {
+            background: #f1f5ff;
+            transition: .3s;
         }
 
-        img{
-            object-fit:cover;
+        .product-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
         }
 
     </style>
@@ -35,6 +41,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark shadow"
      style="background:linear-gradient(90deg,#2563EB,#1D4ED8);">
+
     <div class="container">
 
         <a class="navbar-brand fw-bold"
@@ -43,6 +50,7 @@
         </a>
 
         <button class="navbar-toggler"
+                type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#menu">
 
@@ -56,8 +64,7 @@
             <ul class="navbar-nav ms-auto">
 
                 <li class="nav-item">
-                    <a href="/"
-                       class="nav-link">
+                    <a href="/" class="nav-link">
                         Dashboard
                     </a>
                 </li>
@@ -76,9 +83,9 @@
                     </a>
 
                 </li>
+
                 <li class="nav-item">
-                    <a href="/categories"
-                       class="nav-link">
+                    <a href="/categories" class="nav-link">
                         Categories
                     </a>
                 </li>
@@ -91,36 +98,37 @@
 
 </nav>
 <div class="container mt-4">
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <h2>
-        <i class="bi bi-box-seam"></i>
-        Product List
-    </h2>
+        <h2>
+            <i class="bi bi-box-seam"></i>
+            Product List
+        </h2>
 
+        <div>
 
-    <div>
+            <a href="/export/pdf"
+               class="btn btn-danger me-2">
 
-        <a href="/export/pdf"
-           class="btn btn-danger me-2">
+                <i class="bi bi-file-earmark-pdf"></i>
+                Export PDF
 
-            <i class="bi bi-file-earmark-pdf"></i>
-            Export PDF
+            </a>
 
-        </a>
+            <a href="/add-product"
+               class="btn btn-success"
+               sec:authorize="hasRole('ADMIN')">
 
+                <i class="bi bi-plus-circle"></i>
+                Add Product
 
-        <a href="/add-product"
-           class="btn btn-success">
+            </a>
 
-            <i class="bi bi-plus-circle"></i>
-            Add Product
-
-        </a>
+        </div>
 
     </div>
 
-</div>
     <!-- Success Message -->
 
     <div class="alert alert-success alert-dismissible fade show"
@@ -128,7 +136,8 @@
 
         <span th:text="${success}"></span>
 
-        <button class="btn-close"
+        <button type="button"
+                class="btn-close"
                 data-bs-dismiss="alert">
         </button>
 
@@ -147,10 +156,10 @@
                    class="form-control"
                    placeholder="Search Product">
 
-            <button class="btn btn-primary">
+            <button type="submit"
+                    class="btn btn-primary">
 
                 <i class="bi bi-search"></i>
-
                 Search
 
             </button>
@@ -212,122 +221,153 @@
         </a>
 
     </div>
+    <div class="card shadow border-0 rounded-4">
 
-<div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-primary text-white fw-bold">
 
-    <div class="card-header bg-primary text-white fw-bold">
+            <i class="bi bi-box-seam"></i>
+            Product Inventory
 
-        <i class="bi bi-box-seam"></i>
-        Product Inventory
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-primary">
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="product : ${products}">
+
+                        <!-- ID -->
+
+                        <td th:text="${product.id}">
+                        </td>
+
+
+                        <!-- IMAGE -->
+
+                        <td>
+
+                            <div th:if="${product.imageName != null
+                                     and !product.imageName.isEmpty()}">
+
+                                <img th:src="${product.imageName}"
+                                     class="product-image"
+                                     alt="Product Image">
+
+                            </div>
+
+                            <span th:if="${product.imageName == null
+                                      or product.imageName.isEmpty()}"
+                                  class="text-muted">
+
+                            No Image
+
+                        </span>
+
+                        </td>
+
+
+                        <!-- PRODUCT NAME -->
+
+                        <td class="fw-semibold"
+                            th:text="${product.productName}">
+                        </td>
+
+
+                        <!-- CATEGORY -->
+
+                        <td th:text="${product.category}">
+                        </td>
+
+
+                        <!-- PRICE -->
+
+                        <td class="fw-bold text-success">
+
+                            ₹ <span th:text="${product.price}">
+                        </span>
+
+                        </td>
+
+
+                        <!-- QUANTITY -->
+
+                        <td>
+
+                        <span th:if="${product.quantity > 10}"
+                              class="badge bg-success"
+                              th:text="${product.quantity}">
+                        </span>
+
+                            <span th:if="${product.quantity <= 10
+                                      and product.quantity > 0}"
+                                  class="badge bg-warning text-dark"
+                                  th:text="${product.quantity}">
+                        </span>
+
+                            <span th:if="${product.quantity == 0}"
+                                  class="badge bg-danger">
+
+                            OUT OF STOCK
+
+                        </span>
+
+                        </td>
+
+
+                        <!-- ACTION -->
+
+                        <td sec:authorize="hasRole('ADMIN')">
+
+                            <a th:href="@{/edit-product/{id}(id=${product.id})}"
+                               class="btn btn-outline-warning btn-sm">
+
+                                <i class="bi bi-pencil-square"></i>
+                                Edit
+
+                            </a>
+
+                            <a th:href="@{/delete-product/{id}(id=${product.id})}"
+                               class="btn btn-outline-danger btn-sm"
+                               onclick="return confirm('Delete this product?')">
+
+                                <i class="bi bi-trash"></i>
+                                Delete
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
 
     </div>
-
-    <div class="card-body p-0">
-
-        <table class="table table-hover align-middle mb-0">
-
-            <thead class="table-primary">
-
-        <tr>
-
-            <th>ID</th>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Action</th>
-
-        </tr>
-
-        </thead>
-
-        <tbody>
-
-        <tr th:each="product : ${products}">
-            <!-- ID -->
-            <td th:text="${product.id}"></td>
-
-            <!-- Image -->
-            <td>
-
-                <img th:src="${product.imageName}"
-                     alt="Product Image"
-                     width="100"
-                     height="100"
-                     style="object-fit: cover;">
-
-                <span th:if="${product.imageName == null}">
-                    No Image
-                </span>
-
-            </td>
-
-            <!-- Product Name -->
-            <td class="fw-semibold"
-                th:text="${product.productName}">
-            </td>
-
-            <!-- Category -->
-            <td th:text="${product.category}"></td>
-
-            <!-- Price -->
-            <td class="fw-bold text-success">
-
-                ₹ <span th:text="${product.price}"></span>
-
-            </td>
-
-            <!-- Quantity -->
-            <td>
-
-                <span th:if="${product.quantity > 10}"
-                      class="badge bg-success"
-                      th:text="${product.quantity}">
-                </span>
-
-                <span th:if="${product.quantity <= 10 && product.quantity > 0}"
-                      class="badge bg-warning text-dark"
-                      th:text="${product.quantity}">
-                </span>
-
-                <span th:if="${product.quantity == 0}"
-                      class="badge bg-danger">
-                    OUT OF STOCK
-                </span>
-
-            </td>
-
-            <!-- Action -->
-            <td sec:authorize="hasRole('ADMIN')">
-
-                <a th:href="@{/edit-product/{id}(id=${product.id})}"
-                   class="btn btn-outline-warning btn-sm">
-
-                    <i class="bi bi-pencil-square"></i>
-                    Edit
-
-                </a>
-
-
-                <a th:href="@{/delete-product/{id}(id=${product.id})}"
-                   class="btn btn-outline-danger btn-sm"
-                   onclick="return confirm('Delete this product?')">
-
-                    <i class="bi bi-trash"></i>
-                    Delete
-
-                </a>
-
-            </td>
-        </tr>
-
-        </tbody>
-
-    </table>
-    </div>
-
-</div>
     <!-- Pagination -->
 
     <nav th:if="${totalPages != null and totalPages > 1}"
@@ -336,35 +376,45 @@
         <ul class="pagination pagination-lg justify-content-center">
 
             <!-- Previous -->
+
             <li class="page-item"
                 th:classappend="${currentPage == 0} ? 'disabled'">
 
                 <a class="page-link"
-                   th:href="@{/products(page=${currentPage-1})}">
+                   th:href="@{/products(page=${currentPage - 1})}">
+
                     Previous
+
                 </a>
 
             </li>
+
 
             <!-- Page Numbers -->
+
             <li class="page-item"
-                th:each="i : ${#numbers.sequence(0,totalPages-1)}"
-                th:classappend="${i==currentPage} ? 'active'">
+                th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == currentPage} ? 'active'">
 
                 <a class="page-link"
-                   th:text="${i+1}"
+                   th:text="${i + 1}"
                    th:href="@{/products(page=${i})}">
+
                 </a>
 
             </li>
 
+
             <!-- Next -->
+
             <li class="page-item"
-                th:classappend="${currentPage==totalPages-1} ? 'disabled'">
+                th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
 
                 <a class="page-link"
-                   th:href="@{/products(page=${currentPage+1})}">
+                   th:href="@{/products(page=${currentPage + 1})}">
+
                     Next
+
                 </a>
 
             </li>
@@ -374,15 +424,26 @@
     </nav>
 
 </div>
+
+
 <footer class="text-center text-muted py-4 mt-5">
+
     <small>
-        © 2026 <strong>StockSphere</strong> | Developed by <strong>Tyson</strong>
+
+        © 2026
+        <strong>StockSphere</strong>
+        |
+        Developed by
+        <strong>Tyson</strong>
+
     </small>
+
 </footer>
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
 </script>
 
 </body>
+
 </html>
-
-
