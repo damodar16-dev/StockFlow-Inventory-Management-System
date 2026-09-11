@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
 
     <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Categories | StockSphere</title>
 
@@ -17,33 +20,115 @@
 
     <style>
 
-        body{
-            background:#f4f7fc;
-            font-family:'Poppins',sans-serif;
+        body {
+            background: #f4f7fc;
+            font-family: 'Poppins', sans-serif;
         }
 
-        .page-header{
-            background:linear-gradient(135deg,#2563EB,#1D4ED8);
-            color:white;
-            border-radius:20px;
-            padding:30px;
-            margin-bottom:30px;
-            box-shadow:0 10px 25px rgba(37,99,235,.25);
+        .navbar {
+            background: linear-gradient(90deg, #2563EB, #1D4ED8);
         }
 
-        .card{
-            border:none;
-            border-radius:18px;
-            box-shadow:0 10px 25px rgba(0,0,0,.08);
+        .page-header {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, .25);
         }
 
-        .table tbody tr:hover{
-            background:#eef4ff;
-            transition:.3s;
+        .page-header h2 {
+            margin-bottom: 8px;
         }
 
-        .btn{
-            border-radius:10px;
+        .page-header p {
+            opacity: .9;
+        }
+
+        .card {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+        }
+
+        .card-header {
+            padding: 16px 20px;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            white-space: nowrap;
+        }
+
+        .table tbody tr {
+            transition: .2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #eef4ff;
+        }
+
+        .category-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8f0ff;
+            color: #2563EB;
+            margin-right: 10px;
+        }
+
+        .description-text {
+            color: #6b7280;
+        }
+
+        .btn {
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 55px;
+            color: #94a3b8;
+        }
+
+        .empty-state h5 {
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        footer {
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+
+            .page-header {
+                padding: 22px;
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 20px;
+            }
+
+            .page-header .btn {
+                width: 100%;
+            }
+
+            .table {
+                min-width: 700px;
+            }
+
         }
 
     </style>
@@ -52,8 +137,9 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow"
-     style="background:linear-gradient(90deg,#2563EB,#1D4ED8);">
+<!-- Navbar -->
+
+<nav class="navbar navbar-expand-lg navbar-dark shadow">
 
     <div class="container">
 
@@ -75,31 +161,47 @@
             <ul class="navbar-nav ms-auto">
 
                 <li class="nav-item">
+
                     <a href="/" class="nav-link">
+
                         <i class="bi bi-speedometer2"></i>
                         Dashboard
+
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a href="/products" class="nav-link">
+
                         <i class="bi bi-box-seam"></i>
                         Products
+
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a href="/categories" class="nav-link active">
+
                         <i class="bi bi-tags"></i>
                         Categories
+
                     </a>
+
                 </li>
 
                 <li class="nav-item">
+
                     <a href="/about" class="nav-link">
+
                         <i class="bi bi-info-circle"></i>
                         About
+
                     </a>
+
                 </li>
 
             </ul>
@@ -110,18 +212,26 @@
 
 </nav>
 
-<div class="container mt-4">
+
+<!-- Main Content -->
+
+<div class="container mt-4 mb-5">
+
+    <!-- Page Header -->
 
     <div class="page-header d-flex justify-content-between align-items-center">
 
         <div>
 
             <h2 class="fw-bold">
-                📂 Categories
+
+                <i class="bi bi-tags"></i>
+                Categories
+
             </h2>
 
             <p class="mb-0">
-                Manage your product categories
+                Organize and manage your product categories
             </p>
 
         </div>
@@ -137,55 +247,122 @@
 
     </div>
 
+
+    <!-- Success Message -->
+
     <div class="alert alert-success alert-dismissible fade show"
          th:if="${success}">
 
-        <span th:text="${success}"></span>
+        <i class="bi bi-check-circle-fill me-2"></i>
 
-        <button class="btn-close"
+        <span th:text="${success}">
+            Category saved successfully.
+        </span>
+
+        <button type="button"
+                class="btn-close"
                 data-bs-dismiss="alert">
         </button>
 
     </div>
 
+
+    <!-- Category Card -->
+
     <div class="card">
 
-        <div class="card-header bg-primary text-white fw-bold">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
 
-            <i class="bi bi-tags"></i>
+            <span class="fw-bold">
 
-            Category List
+                <i class="bi bi-folder2-open me-2"></i>
+                Category List
+
+            </span>
+
+            <span class="badge bg-light text-primary"
+                  th:text="${categories != null ? categories.size() : 0}">
+
+                0
+
+            </span>
 
         </div>
 
-        <div class="card-body p-0">
 
-            <table class="table table-hover align-middle mb-0">
+        <!-- Categories Available -->
+
+        <div class="table-responsive"
+             th:if="${categories != null and !categories.isEmpty()}">
+
+            <table class="table table-hover align-middle">
 
                 <thead class="table-primary">
 
                 <tr>
 
                     <th>ID</th>
+
                     <th>Category</th>
+
                     <th>Description</th>
-                    <th class="text-center">Action</th>
+
+                    <th class="text-center">
+                        Action
+                    </th>
 
                 </tr>
 
                 </thead>
 
+
                 <tbody>
 
                 <tr th:each="category : ${categories}">
 
-                    <td th:text="${category.id}"></td>
+                    <td>
 
-                    <td class="fw-semibold"
-                        th:text="${category.categoryName}">
+                        <span class="badge bg-secondary"
+                              th:text="${category.id}">
+                            1
+                        </span>
+
                     </td>
 
-                    <td th:text="${category.description}"></td>
+
+                    <td>
+
+                        <span class="category-icon">
+
+                            <i class="bi bi-folder-fill"></i>
+
+                        </span>
+
+                        <span class="fw-semibold"
+                              th:text="${category.categoryName}">
+                            Electronics
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="description-text"
+                              th:if="${category.description != null and !#strings.isEmpty(category.description)}"
+                              th:text="${category.description}">
+                            Electronic products
+                        </span>
+
+                        <span class="text-muted"
+                              th:if="${category.description == null or #strings.isEmpty(category.description)}">
+
+                            No description
+
+                        </span>
+
+                    </td>
+
 
                     <td class="text-center">
 
@@ -197,6 +374,7 @@
                             Edit
 
                         </a>
+
 
                         <a th:href="@{/delete-category/{id}(id=${category.id})}"
                            class="btn btn-outline-danger btn-sm"
@@ -218,24 +396,60 @@
 
         </div>
 
+
+        <!-- Empty State -->
+
+        <div class="empty-state"
+             th:if="${categories == null or categories.isEmpty()}">
+
+            <i class="bi bi-folder-x"></i>
+
+            <h5>
+                No Categories Found
+            </h5>
+
+            <p class="text-muted mb-4">
+
+                You haven't created any product categories yet.
+
+            </p>
+
+            <a href="/add-category"
+               class="btn btn-primary">
+
+                <i class="bi bi-plus-circle me-1"></i>
+
+                Create First Category
+
+            </a>
+
+        </div>
+
     </div>
 
 </div>
+
+
+<!-- Footer -->
 
 <footer class="text-center text-muted py-4 mt-5">
 
     <small>
 
-        © 2026 <strong>StockSphere</strong> |
-        Inventory Management System |
+        © 2026 <strong>StockSphere</strong>
+        |
+        Inventory Management System
+        |
         Developed by <strong>Tyson</strong>
 
     </small>
 
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
 
 </body>
-</html>
+
 </html>
