@@ -95,7 +95,7 @@
 
                 <div class="card-body p-4">
 
-                    <form th:action="@{/products/save}"
+                    <form th:action="@{/save-product}"
                           th:object="${product}"
                           method="post"
                           enctype="multipart/form-data">
@@ -179,7 +179,7 @@
 
                             <input type="file"
                                    id="imageFile"
-                                   name="imageFile"
+                                   name="image"
                                    class="form-control"
                                    accept="image/*">
 
