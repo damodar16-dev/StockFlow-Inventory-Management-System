@@ -34,10 +34,7 @@ public class ProductController {
     @GetMapping("/products")
     public String showProducts(Model model) {
 
-        model.addAttribute(
-                "products",
-                productRepository.findAll()
-        );
+        model.addAttribute("products", productRepository.findAll());
 
         return "products";
     }
@@ -47,7 +44,7 @@ public class ProductController {
     // SHOW ADD PRODUCT PAGE
     // =========================
 
-    @GetMapping("/add-product")
+    @GetMapping("/products/add")
     public String showAddProductForm(Model model) {
 
         model.addAttribute("product", new Product());
@@ -57,34 +54,32 @@ public class ProductController {
 
 
     // =========================
-    // ADD / SAVE PRODUCT
+    // ADD PRODUCT
     // =========================
 
-    @PostMapping("/save-product")
+    @PostMapping("/products/save")
     public String saveProduct(
             @Valid @ModelAttribute("product") Product product,
             BindingResult bindingResult,
-            @RequestParam(value = "image", required = false)
-            MultipartFile image,
+            @RequestParam("imageFile") MultipartFile imageFile,
             Model model) throws IOException {
 
         if (bindingResult.hasErrors()) {
             return "add-product";
         }
 
-        // Cloudinary upload
-        if (image != null && !image.isEmpty()) {
+        // Check image
+        if (imageFile != null && !imageFile.isEmpty()) {
 
             Map uploadResult = cloudinary.uploader().upload(
-                    image.getBytes(),
+                    imageFile.getBytes(),
                     ObjectUtils.asMap(
                             "folder", "stocksphere/products",
                             "resource_type", "image"
                     )
             );
 
-            String imageUrl =
-                    (String) uploadResult.get("secure_url");
+            String imageUrl = (String) uploadResult.get("secure_url");
 
             product.setImageName(imageUrl);
         }
@@ -93,21 +88,21 @@ public class ProductController {
 
         return "redirect:/products";
     }
+
+
     // =========================
-    // SHOW EDIT PRODUCT PAGE
+    // SHOW EDIT PRODUCT
     // =========================
 
-    @GetMapping("/edit-product/{id}")
+    @GetMapping("/products/edit/{id}")
     public String editProduct(
             @PathVariable Long id,
             Model model) {
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Invalid product ID: " + id
-                        )
-                );
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Invalid product ID: " + id
+                ));
 
         model.addAttribute("product", product);
 
@@ -124,79 +119,57 @@ public class ProductController {
             @PathVariable Long id,
             @Valid @ModelAttribute("product") Product product,
             BindingResult bindingResult,
-            @RequestParam(value = "image", required = false)
-            MultipartFile image,
+            @RequestParam("imageFile") MultipartFile imageFile,
             Model model) throws IOException {
 
         if (bindingResult.hasErrors()) {
             return "edit-product";
         }
 
-        Product existingProduct =
-                productRepository.findById(id)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Invalid product ID: " + id
-                                )
-                        );
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Invalid product ID: " + id
+                ));
 
-        existingProduct.setProductName(
-                product.getProductName()
-        );
+        existingProduct.setProductName(product.getProductName());
+        existingProduct.setCategory(product.getCategory());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setQuantity(product.getQuantity());
 
-        existingProduct.setCategory(
-                product.getCategory()
-        );
+        // If a new image is selected
+        if (imageFile != null && !imageFile.isEmpty()) {
 
-        existingProduct.setPrice(
-                product.getPrice()
-        );
+            Map uploadResult = cloudinary.uploader().upload(
+                    imageFile.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "stocksphere/products",
+                            "resource_type", "image"
+                    )
+            );
 
-        existingProduct.setQuantity(
-                product.getQuantity()
-        );
-
-
-        // Upload new image if selected
-        if (image != null && !image.isEmpty()) {
-
-            Map uploadResult =
-                    cloudinary.uploader().upload(
-                            image.getBytes(),
-                            ObjectUtils.asMap(
-                                    "folder",
-                                    "stocksphere/products",
-
-                                    "resource_type",
-                                    "image"
-                            )
-                    );
-
-            String imageUrl =
-                    (String) uploadResult.get("secure_url");
+            String imageUrl = (String) uploadResult.get("secure_url");
 
             existingProduct.setImageName(imageUrl);
         }
 
-
         // If no new image selected,
-        // old image URL remains unchanged.
+        // old Cloudinary URL remains unchanged.
 
         productRepository.save(existingProduct);
 
         return "redirect:/products";
     }
+
+
     // =========================
     // DELETE PRODUCT
     // =========================
 
-    @GetMapping("/delete-product/{id}")
-    public String deleteProduct(
-            @PathVariable Long id) {
+    @GetMapping("/products/delete/{id}")
+    public String deleteProduct(@PathVariable Long id) {
 
         productRepository.deleteById(id);
 
         return "redirect:/products";
     }
-
 }
