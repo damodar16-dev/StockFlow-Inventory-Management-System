@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
@@ -23,8 +24,7 @@
 
     <div class="container">
 
-        <a class="navbar-brand fw-bold"
-           href="/">
+        <a class="navbar-brand fw-bold" href="/">
             📦 StockSphere
         </a>
 
@@ -37,21 +37,18 @@
 
         </button>
 
-        <div class="collapse navbar-collapse"
-             id="navbarNav">
+        <div class="collapse navbar-collapse" id="navbarNav">
 
             <ul class="navbar-nav ms-auto">
 
                 <li class="nav-item">
-                    <a class="nav-link"
-                       href="/">
+                    <a class="nav-link" href="/">
                         Dashboard
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link"
-                       href="/products">
+                    <a class="nav-link" href="/products">
                         Products
                     </a>
                 </li>
@@ -59,15 +56,14 @@
                 <li class="nav-item"
                     sec:authorize="hasRole('ADMIN')">
 
-                    <a href="/add-product"
-                       class="nav-link">
+                    <a href="/add-product" class="nav-link">
                         Add Product
                     </a>
 
                 </li>
+
                 <li class="nav-item">
-                    <a href="/categories"
-                       class="nav-link">
+                    <a href="/categories" class="nav-link">
                         Categories
                     </a>
                 </li>
@@ -80,6 +76,7 @@
 
 </nav>
 
+
 <div class="container mt-5">
 
     <div class="row justify-content-center">
@@ -91,16 +88,17 @@
                 <div class="card-header bg-success text-white">
 
                     <h3>
-
                         <i class="bi bi-plus-circle"></i>
-
                         Add / Edit Product
-
                     </h3>
 
                 </div>
 
                 <div class="card-body">
+
+                    <!-- IMPORTANT:
+                         enctype is required for image upload
+                    -->
 
                     <form th:action="@{/save-product}"
                           th:object="${product}"
@@ -109,6 +107,9 @@
 
                         <input type="hidden"
                                th:field="*{id}">
+
+
+                        <!-- Product Name -->
 
                         <div class="mb-3">
 
@@ -123,10 +124,14 @@
                                    required>
 
                         </div>
+
                         <div class="text-danger"
                              th:if="${#fields.hasErrors('productName')}"
                              th:errors="*{productName}">
                         </div>
+
+
+                        <!-- Category -->
 
                         <div class="mb-3">
 
@@ -157,10 +162,14 @@
                             </select>
 
                         </div>
+
                         <div class="text-danger"
                              th:if="${#fields.hasErrors('category')}"
                              th:errors="*{category}">
                         </div>
+
+
+                        <!-- Price + Quantity -->
 
                         <div class="row">
 
@@ -179,116 +188,6 @@
                                            required>
 
                                 </div>
+
                                 <div class="text-danger"
-                                     th:if="${#fields.hasErrors('price')}"
-                                     th:errors="*{price}">
-                                </div>
-
-                            </div>
-
-                            <div class="col-md-6">
-
-                                <div class="mb-3">
-
-                                    <label class="form-label">
-                                        Quantity
-                                    </label>
-
-                                    <input type="number"
-                                           class="form-control"
-                                           th:field="*{quantity}"
-                                           required>
-
-                                </div>
-                                <div class="text-danger"
-                                     th:if="${#fields.hasErrors('quantity')}"
-                                     th:errors="*{quantity}">
-                                </div>
-
-                            </div>
-                            <!-- Product Image -->
-                            <div class="col-12">
-
-                                <div class="mb-3">
-
-                                    <label class="form-label">
-                                        Product Image
-                                    </label>
-
-                                    <input type="file"
-                                           name="image"
-                                           class="form-control"
-                                           accept="image/*">
-
-                                    <small class="text-muted">
-                                        Leave empty while editing to keep the existing image.
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            <!-- Current Image (Edit Mode) -->
-                            <div class="col-12"
-                                 th:if="${product.imageName != null}">
-
-                                <div class="mb-3">
-
-                                    <label class="form-label">
-                                        Current Image
-                                    </label>
-
-                                    <br>
-
-                                    <img th:src="@{'/uploads/' + ${product.imageName}}"
-                                         width="120"
-                                         height="120"
-                                         class="rounded shadow">
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="mt-4 d-flex gap-2">
-
-                            <button type="submit"
-                                    class="btn btn-success">
-
-                                <i class="bi bi-floppy"></i>
-                                Save Product
-
-                            </button>
-
-                            <a href="/products"
-                               class="btn btn-secondary">
-
-                                <i class="bi bi-arrow-left"></i>
-                                Back
-
-                            </a>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-<footer class="bg-dark text-white text-center py-3 mt-5">
-    <small>
-        © 2026 <strong>StockSphere</strong> | Inventory Management System |
-        Developed by <strong>Tyson</strong>
-    </small>
-</footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+                                     ```
