@@ -68,16 +68,11 @@ public class ProductController {
             MultipartFile image,
             Model model) throws IOException {
 
-        // Validation errors
         if (bindingResult.hasErrors()) {
             return "add-product";
         }
 
-
-        // =========================
-        // CLOUDINARY IMAGE UPLOAD
-        // =========================
-
+        // Cloudinary upload
         if (image != null && !image.isEmpty()) {
 
             Map uploadResult = cloudinary.uploader().upload(
@@ -88,27 +83,21 @@ public class ProductController {
                     )
             );
 
-            // Get Cloudinary secure URL
             String imageUrl =
                     (String) uploadResult.get("secure_url");
 
-            // Save Cloudinary URL in database
             product.setImageName(imageUrl);
         }
 
-
-        // Save product in MySQL
         productRepository.save(product);
 
         return "redirect:/products";
     }
-
-
     // =========================
     // SHOW EDIT PRODUCT PAGE
     // =========================
 
-    @GetMapping("/products/edit/{id}")
+    @GetMapping("/edit-product/{id}")
     public String editProduct(
             @PathVariable Long id,
             Model model) {
@@ -143,8 +132,6 @@ public class ProductController {
             return "edit-product";
         }
 
-
-        // Find existing product
         Product existingProduct =
                 productRepository.findById(id)
                         .orElseThrow(() ->
@@ -152,11 +139,6 @@ public class ProductController {
                                         "Invalid product ID: " + id
                                 )
                         );
-
-
-        // =========================
-        // UPDATE PRODUCT DETAILS
-        // =========================
 
         existingProduct.setProductName(
                 product.getProductName()
@@ -175,10 +157,7 @@ public class ProductController {
         );
 
 
-        // =========================
-        // UPLOAD NEW IMAGE
-        // =========================
-
+        // Upload new image if selected
         if (image != null && !image.isEmpty()) {
 
             Map uploadResult =
@@ -196,26 +175,22 @@ public class ProductController {
             String imageUrl =
                     (String) uploadResult.get("secure_url");
 
-            // Replace old image URL
             existingProduct.setImageName(imageUrl);
         }
 
 
         // If no new image selected,
-        // existing Cloudinary URL remains unchanged.
-
+        // old image URL remains unchanged.
 
         productRepository.save(existingProduct);
 
         return "redirect:/products";
     }
-
-
     // =========================
     // DELETE PRODUCT
     // =========================
 
-    @GetMapping("/products/delete/{id}")
+    @GetMapping("/delete-product/{id}")
     public String deleteProduct(
             @PathVariable Long id) {
 
@@ -223,5 +198,5 @@ public class ProductController {
 
         return "redirect:/products";
     }
-}
 
+}
