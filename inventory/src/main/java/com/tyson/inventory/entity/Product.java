@@ -30,8 +30,6 @@ public class Product {
     @Column(name = "image_name")
     private String imageName;
 
-
-
     public Product() {
     }
 
@@ -93,3 +91,4 @@ public class Product {
         this.imageName = imageName;
     }
 }
+

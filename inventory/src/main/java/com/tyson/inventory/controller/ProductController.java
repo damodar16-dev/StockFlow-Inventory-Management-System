@@ -1,14 +1,18 @@
 package com.tyson.inventory.controller;
 
-
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+
 import com.tyson.inventory.service.PdfService;
 import com.tyson.inventory.entity.Product;
 import com.tyson.inventory.repository.ProductRepository;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,23 +25,23 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.io.File;
 import java.io.IOException;
-
+import java.util.Map;
 
 @Controller
 public class ProductController {
 
     private final ProductRepository productRepository;
     private final PdfService pdfService;
-
+    private final Cloudinary cloudinary;
 
     public ProductController(ProductRepository productRepository,
-                             PdfService pdfService) {
+                             PdfService pdfService,
+                             Cloudinary cloudinary) {
 
         this.productRepository = productRepository;
         this.pdfService = pdfService;
-
+        this.cloudinary = cloudinary;
     }
 
     // ==========================
@@ -90,21 +94,25 @@ public class ProductController {
 
         return "products";
     }
-@GetMapping("/export/pdf")
-public ResponseEntity<byte[]> exportPdf() {
 
-    List<Product> products = productRepository.findAll();
+    // ==========================
+    // Export PDF
+    // ==========================
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportPdf() {
 
-    byte[] pdf = pdfService.generateProductPdf(products);
+        List<Product> products = productRepository.findAll();
 
-    return ResponseEntity.ok()
-            .header(
-                    HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=products.pdf"
-            )
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(pdf);
-}
+        byte[] pdf = pdfService.generateProductPdf(products);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=products.pdf"
+                )
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
 
     // ==========================
     // Sort by Name
@@ -144,6 +152,7 @@ public ResponseEntity<byte[]> exportPdf() {
 
         return "add-product";
     }
+
     // ==========================
     // Save Product
     // ==========================
@@ -155,6 +164,7 @@ public ResponseEntity<byte[]> exportPdf() {
             RedirectAttributes redirectAttributes,
             Model model) throws IOException {
 
+        // Validate product fields
         if (result.hasErrors()) {
             model.addAttribute("product", product);
             return "add-product";
@@ -162,41 +172,56 @@ public ResponseEntity<byte[]> exportPdf() {
 
         boolean isNew = (product.getId() == null);
 
+        // ==========================================
         // Preserve old image while editing
+        // ==========================================
         if (!isNew) {
-            Product oldProduct = productRepository.findById(product.getId()).orElse(null);
+
+            Product oldProduct = productRepository
+                    .findById(product.getId())
+                    .orElse(null);
 
             if (oldProduct != null && file.isEmpty()) {
                 product.setImageName(oldProduct.getImageName());
             }
         }
 
-        // Upload new image
+        // ==========================================
+        // Upload new image to Cloudinary
+        // ==========================================
         if (!file.isEmpty()) {
 
-            String uploadDir = System.getProperty("user.dir") + File.separator + "uploads";
+            Map uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "stocksphere/products",
+                            "resource_type", "image"
+                    )
+            );
 
-            File directory = new File(uploadDir);
+            // Get permanent Cloudinary URL
+            String imageUrl = (String) uploadResult.get("secure_url");
 
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-
-            file.transferTo(new File(directory, fileName));
-
-            product.setImageName(fileName);
+            product.setImageName(imageUrl);
         }
 
+        // ==========================================
+        // Save product to Aiven MySQL
+        // ==========================================
         productRepository.save(product);
 
+        // ==========================================
+        // Success message
+        // ==========================================
         if (isNew) {
+
             redirectAttributes.addFlashAttribute(
                     "success",
                     "Product added successfully."
             );
+
         } else {
+
             redirectAttributes.addFlashAttribute(
                     "success",
                     "Product updated successfully."
@@ -214,7 +239,9 @@ public ResponseEntity<byte[]> exportPdf() {
             @PathVariable Long id,
             Model model) {
 
-        Product product = productRepository.findById(id).orElse(null);
+        Product product = productRepository
+                .findById(id)
+                .orElse(null);
 
         if (product == null) {
             return "redirect:/products";
@@ -242,5 +269,5 @@ public ResponseEntity<byte[]> exportPdf() {
 
         return "redirect:/products";
     }
-
 }
+
