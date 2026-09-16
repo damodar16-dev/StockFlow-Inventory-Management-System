@@ -100,6 +100,8 @@
                           method="post"
                           enctype="multipart/form-data">
 
+                        <input type="hidden" th:field="*{id}">
+
                         <div class="mb-3">
 
                             <label for="productName"
@@ -132,7 +134,7 @@
                                    required>
 
                         </div>
-                        ```html
+
                         <div class="mb-3">
 
                             <label for="price"
