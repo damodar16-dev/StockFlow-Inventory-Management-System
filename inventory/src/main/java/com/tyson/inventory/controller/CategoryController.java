@@ -36,15 +36,27 @@ public class CategoryController {
             BindingResult result,
             RedirectAttributes redirectAttributes) {
 
+        System.out.println("🔥 SAVE CATEGORY CALLED");
+        System.out.println("Category Name: " + category.getCategoryName());
+
         if (result.hasErrors()) {
+            System.out.println("❌ VALIDATION ERROR: " + result.getAllErrors());
             return "add-category";
         }
 
+        System.out.println("💾 SAVING CATEGORY...");
+
         categoryRepository.save(category);
-        redirectAttributes.addFlashAttribute("success", "Category saved successfully.");
+
+        System.out.println("✅ CATEGORY SAVED");
+
+        redirectAttributes.addFlashAttribute(
+                "success",
+                "Category saved successfully."
+        );
+
         return "redirect:/categories";
     }
-
     @GetMapping("/edit-category/{id}")
     public String editCategory(@PathVariable Long id, Model model) {
         model.addAttribute("category",
