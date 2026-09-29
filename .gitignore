@@ -1,10 +1,8 @@
-# IDE
-.idea/
-
-# Compiled class files
+<<<<<<< HEAD
+# Compiled class file
 *.class
 
-# Log files
+# Log file
 *.log
 
 # BlueJ files
@@ -13,7 +11,7 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package files
+# Package Files #
 *.jar
 *.war
 *.nar
@@ -22,6 +20,9 @@
 *.tar.gz
 *.rar
 
-# Virtual machine crash logs
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+=======
+.idea/
+>>>>>>> 7add11b (Ignore IntelliJ project files)
