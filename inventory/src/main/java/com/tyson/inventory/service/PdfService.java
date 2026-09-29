@@ -1,5 +1,6 @@
 package com.tyson.inventory.service;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -47,6 +48,21 @@ public class PdfService {
 
             document.add(title);
 
+
+            document.add(new Paragraph("\n"));
+            LocalDateTime now = LocalDateTime.now();
+
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("dd MMMM yyyy, hh:mm a");
+
+            Paragraph generatedDate =
+                    new Paragraph(
+                            "Generated: " + now.format(formatter)
+                    );
+
+            generatedDate.setAlignment(Element.ALIGN_CENTER);
+
+            document.add(generatedDate);
 
             document.add(new Paragraph("\n"));
 
